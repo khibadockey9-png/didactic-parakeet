@@ -1,0 +1,73 @@
+openapi: 3.0.1
+info:
+  title: Honey Farm API (skeleton)
+  version: 0.1.0
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /auth/signup:
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: OK
+  /auth/login:
+    post:
+      summary: Login
+      responses:
+        '200':
+          description: OK
+  /farm/{userId}:
+    get:
+      summary: Get farm state for a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Farm state
+  /farm/{userId}/plant:
+    post:
+      summary: Plant a flower in a hive
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: Planted
+  /farm/{userId}/harvest:
+    post:
+      summary: Harvest a hive (server validates 8-hour rule)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hiveId:
+                  type: string
+      responses:
+        '200':
+          description: Harvest result
+  /shop/buy:
+    post:
+      summary: Buy an item from shop
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: Purchase OK
+  /withdrawals/request:
+    post:
+      summary: Request a withdrawal
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: Withdrawal created
+components: {}
