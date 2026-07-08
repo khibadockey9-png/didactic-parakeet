@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'auth_service.dart';
+import 'screens/login_screen.dart';
+import 'screens/home_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(HoneyFarmApp());
 }
 
@@ -10,36 +16,32 @@ class HoneyFarmApp extends StatelessWidget {
     return MaterialApp(
       title: 'Honey Farm',
       theme: ThemeData(primarySwatch: Colors.amber),
-      home: HomeScreen(),
+      home: AuthGate(),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class AuthGate extends StatefulWidget {
+  @override
+  _AuthGateState createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  final AuthService _authService = AuthService();
+  @override
+  void initState() {
+    super.initState();
+    _authService.authStateChanges().listen((user) {
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Honey Farm'),
-        actions: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12),
-            child: Row(children: [Icon(Icons.monetization_on), SizedBox(width:4), Text('0')]),
-          )
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Welcome, Farmer!', style: TextStyle(fontSize: 24)),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: () {}, child: Text('Harvest Honey')),
-            SizedBox(height: 10),
-            ElevatedButton(onPressed: () {}, child: Text('Flower Shop')),
-          ],
-        ),
-      ),
-    );
+    final user = _authService._auth.currentUser;
+    if (user == null) {
+      return LoginScreen(authService: _authService);
+    }
+    return HomeScreen();
   }
 }
