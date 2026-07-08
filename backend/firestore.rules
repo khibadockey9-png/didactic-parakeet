@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      // Prevent clients from updating sensitive fields (server must manage balances and XP)
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // Farms collection
+    match /farms/{farmId} {
+      allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      // Creation and updates must be performed by server-side code
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // Hives collection
+    match /hives/{hiveId} {
+      allow read: if request.auth != null && get(/databases/$(database)/documents/farms/$(resource.data.farmId)).data.ownerId == request.auth.uid;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // Transactions and other server-managed collections
+    match /{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}
